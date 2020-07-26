@@ -12,23 +12,28 @@ if (isset($_POST["add"])) {
         header("Location: add.php");
         return;
     } else {
-        if (is_numeric($_POST["mileage"]) && is_numeric($_POST["year"])) {
+        if (is_numeric($_POST["mileage"])) {
+            if (is_numeric($_POST["year"])) {
+                $stmt = $pdo->prepare("insert into autos(make, model, year, mileage) values(:mk, :md, :yr, :mi)");
+                $stmt->execute(
+                    array(
+                        ":mk" => $_POST["make"],
+                        ":md" => $_POST["model"],
+                        ":yr" => $_POST["year"],
+                        ":mi" => $_POST["mileage"],
+                    )
+                );
 
-            $stmt = $pdo->prepare("insert into autos(make, model, year, mileage) values(:mk, :md, :yr, :mi)");
-            $stmt->execute(
-                array(
-                    ":mk" => $_POST["make"],
-                    ":md" => $_POST["model"],
-                    ":yr" => $_POST["year"],
-                    ":mi" => $_POST["mileage"],
-                )
-            );
-
-            $_SESSION["success"] = "Record inserted";
-            header("Location: index.php");
-            return;
+                $_SESSION["success"] = "Record added";
+                header("Location: index.php");
+                return;
+            } else {
+                $_SESSION["addfail"] = "Year must be numeric";
+                header("Location: add.php");
+                return;
+            }
         } else {
-            $_SESSION["addfail"] = "Mileage and year must be numeric";
+            $_SESSION["addfail"] = "Mileage must be numeric";
             header("Location: add.php");
             return;
         }
