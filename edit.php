@@ -6,47 +6,45 @@ if (
     isset($_POST['make']) && isset($_POST['model'])
     && isset($_POST['year']) && isset($_POST['autos_id']) && isset($_POST['mileage'])
 ) {
-
-    // Data validation
-    if (strlen($_POST['name']) < 1 || strlen($_POST['password']) < 1) {
-        $_SESSION['error'] = 'Missing data';
-        header("Location: edit.php?user_id=" . $_POST['user_id']);
+    if (strlen($_POST["make"]) < 1 || strlen($_POST["model"]) < 1 || strlen($_POST["year"]) < 1 || strlen($_POST["mileage"]) < 1) {
+        $_SESSION["addfail"] = "All fields are required";
+        header("Location: edit.php?autos_id=" . $_POST["autos_id"]);
         return;
-    }
+    } else {
+        if (is_numeric($_POST["mileage"])) {
+            if (is_numeric($_POST["year"])) {
+                $stmt = $pdo->prepare("update autos set make=:mk, model=:md, year=:yr, mileage=:mi where autos_id=:id");
+                $stmt->execute(
+                    array(
+                        ":mk" => $_POST["make"],
+                        ":md" => $_POST["model"],
+                        ":yr" => $_POST["year"],
+                        ":mi" => $_POST["mileage"],
+                        ":id" => $_POST["autos_id"]
+                    )
+                );
 
-    if (strpos($_POST['email'], '@') === false) {
-        $_SESSION['error'] = 'Bad data';
-        header("Location: edit.php?user_id=" . $_POST['user_id']);
-        return;
+                $_SESSION["success"] = "Record edited";
+                header("Location: index.php");
+                return;
+            } else {
+                $_SESSION["addfail"] = "Year must be numeric";
+                header("Location: edit.php?autos_id=" . $_POST["autos_id"]);
+                return;
+            }
+        } else {
+            $_SESSION["addfail"] = "Mileage must be numeric";
+            header("Location: edit.php?autos_id=" . $_POST["autos_id"]);
+            return;
+        }
     }
-
-    $sql = "UPDATE users SET name = :name,
-            email = :email, password = :password
-            WHERE user_id = :user_id";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(array(
-        ':name' => $_POST['name'],
-        ':email' => $_POST['email'],
-        ':password' => $_POST['password'],
-        ':user_id' => $_POST['user_id']
-    ));
-    $_SESSION['success'] = 'Record updated';
-    header('Location: index.php');
-    return;
 }
 
-// Guardian: Make sure that user_id is present
-if (!isset($_GET['user_id'])) {
-    $_SESSION['error'] = "Missing user_id";
-    header('Location: index.php');
-    return;
-}
-
-$stmt = $pdo->prepare("SELECT * FROM users where user_id = :xyz");
-$stmt->execute(array(":xyz" => $_GET['user_id']));
+$stmt = $pdo->prepare("SELECT * FROM autos where autos_id = :xyz");
+$stmt->execute(array(":xyz" => $_GET['autos_id']));
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 if ($row === false) {
-    $_SESSION['error'] = 'Bad value for user_id';
+    $_SESSION['error'] = 'Bad value for autos_id';
     header('Location: index.php');
     return;
 }
@@ -57,20 +55,34 @@ if (isset($_SESSION['error'])) {
     unset($_SESSION['error']);
 }
 
-$n = htmlentities($row['name']);
-$e = htmlentities($row['email']);
-$p = htmlentities($row['password']);
-$user_id = $row['user_id'];
+$m = htmlentities($row['make']);
+$md = htmlentities($row['model']);
+$y = htmlentities($row['year']);
+$mi = htmlentities($row['mileage']);
+$autos_id = $row['autos_id'];
 ?>
-<p>Edit User</p>
-<form method="post">
-    <p>Name:
-        <input type="text" name="name" value="<?= $n ?>"></p>
-    <p>Email:
-        <input type="text" name="email" value="<?= $e ?>"></p>
-    <p>Password:
-        <input type="text" name="password" value="<?= $p ?>"></p>
-    <input type="hidden" name="user_id" value="<?= $user_id ?>">
-    <p><input type="submit" value="Update" />
-        <a href="index.php">Cancel</a></p>
-</form>
+
+<head>
+    <title>Dharmang Gajjar</title>
+    <?php require_once "bootstrap.php"; ?>
+</head>
+
+<body>
+    <div class="container">
+
+        <p>Edit User</p>
+        <form method="post">
+            <p>Make:
+                <input type="text" name="make" value="<?= $m ?>"></p>
+            <p>Model:
+                <input type="text" name="model" value="<?= $md ?>"></p>
+            <p>Year:
+                <input type="text" name="year" value="<?= $y ?>"></p>
+            <p>Mileage:
+                <input type="text" name="mileage" value="<?= $mi ?>"></p>
+            <input type="hidden" name="autos_id" value="<?= $autos_id ?>">
+            <p><input type="submit" value="Update" />
+                <a href="index.php">Cancel</a></p>
+        </form>
+    </div>
+</body>

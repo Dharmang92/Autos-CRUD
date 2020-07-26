@@ -2,10 +2,10 @@
 require_once "pdo.php";
 session_start();
 
-if (isset($_POST['delete']) && isset($_POST['autos_id'])) {
-    $sql = "DELETE FROM users WHERE autos_id = :zip";
+if (isset($_POST["delete"]) && isset($_POST["autos_id"])) {
+    $sql = "DELETE FROM autos WHERE autos_id = :id";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute(array(':zip' => $_POST['autos_id']));
+    $stmt->execute(array(':id' => $_POST['autos_id']));
     $_SESSION['success'] = 'Record deleted';
     header('Location: index.php');
     return;
