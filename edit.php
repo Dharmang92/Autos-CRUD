@@ -70,7 +70,7 @@ $autos_id = $row['autos_id'];
 <body>
     <div class="container">
 
-        <p>Edit User</p>
+        <h1>Editing Automobile</h1>
         <form method="post">
             <p>Make:
                 <input type="text" name="make" value="<?= $m ?>"></p>
@@ -81,7 +81,7 @@ $autos_id = $row['autos_id'];
             <p>Mileage:
                 <input type="text" name="mileage" value="<?= $mi ?>"></p>
             <input type="hidden" name="autos_id" value="<?= $autos_id ?>">
-            <p><input type="submit" value="Update" />
+            <p><input type="submit" value="Save" />
                 <a href="index.php">Cancel</a></p>
         </form>
     </div>
