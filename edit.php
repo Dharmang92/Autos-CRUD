@@ -7,7 +7,7 @@ if (
     && isset($_POST['year']) && isset($_POST['autos_id']) && isset($_POST['mileage'])
 ) {
     if (strlen($_POST["make"]) < 1 || strlen($_POST["model"]) < 1 || strlen($_POST["year"]) < 1 || strlen($_POST["mileage"]) < 1) {
-        $_SESSION["addfail"] = "All fields are required";
+        $_SESSION["editfail"] = "All fields are required";
         header("Location: edit.php?autos_id=" . $_POST["autos_id"]);
         return;
     } else {
@@ -28,31 +28,25 @@ if (
                 header("Location: index.php");
                 return;
             } else {
-                $_SESSION["addfail"] = "Year must be numeric";
+                $_SESSION["editfail"] = "Year must be numeric";
                 header("Location: edit.php?autos_id=" . $_POST["autos_id"]);
                 return;
             }
         } else {
-            $_SESSION["addfail"] = "Mileage must be numeric";
+            $_SESSION["editfail"] = "Mileage must be numeric";
             header("Location: edit.php?autos_id=" . $_POST["autos_id"]);
             return;
         }
     }
 }
 
-$stmt = $pdo->prepare("SELECT * FROM autos where autos_id = :xyz");
-$stmt->execute(array(":xyz" => $_GET['autos_id']));
+$stmt = $pdo->prepare("SELECT * FROM autos where autos_id = :id");
+$stmt->execute(array(":id" => $_GET['autos_id']));
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 if ($row === false) {
     $_SESSION['error'] = 'Bad value for autos_id';
     header('Location: index.php');
     return;
-}
-
-// Flash pattern
-if (isset($_SESSION['error'])) {
-    echo '<p style="color:red">' . $_SESSION['error'] . "</p>\n";
-    unset($_SESSION['error']);
 }
 
 $m = htmlentities($row['make']);
@@ -71,6 +65,12 @@ $autos_id = $row['autos_id'];
     <div class="container">
 
         <h1>Editing Automobile</h1>
+        <?php
+        if (isset($_SESSION['editfail'])) {
+            echo '<p style="color:red">' . $_SESSION['editfail'] . "</p>\n";
+            unset($_SESSION['editfail']);
+        }
+        ?>
         <form method="post">
             <p>Make:
                 <input type="text" name="make" value="<?= $m ?>"></p>
